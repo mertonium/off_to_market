@@ -5,7 +5,7 @@
 
 require('tropo-webapi');
 var express = require('express');
-var app = express.createServer();
+var app = express.createServer(express.logger());
 
 /**
  * Required to process the HTTP body
@@ -44,5 +44,6 @@ app.post('/answer', function(req, res){
 	res.send(TropoJSON(tropo));
 });
 
-app.listen(3000);
-console.log('Server running on http://0.0.0.0:3000/')
+var port = process.env.PORT || 8000;
+app.listen(port);
+console.log('Server running on port '+port);

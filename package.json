@@ -11,6 +11,6 @@
     "tropo-webapi":"1.0.15",
     "geo":"0.0.3"
   },
-  "engines" : { "node" : ">=0.4.11" },
+  "engines" : { "node" : ">=0.4.7" },
   "main":"server.js"
 }
