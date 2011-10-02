@@ -9,7 +9,9 @@
   "dependencies": {
     "express":"2.3.4",
     "tropo-webapi":"1.0.15",
-    "geo":"0.0.3"
+    "geo":"0.0.3",
+    "cradle":"0.5.7",
+    "underscore":"1.1.7"
   },
   "engines" : { "node" : ">=0.4.7" },
   "main":"server.js"
