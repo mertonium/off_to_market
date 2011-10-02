@@ -14,12 +14,15 @@ var app = express.createServer(express.logger());
 app.configure(function(){
   app.use(express.methodOverride());
   app.use(express.bodyParser());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'ninjasfightingzombies'}));
   app.use(app.router);
 });
 
-app.get('/', function(req, res){
+app.post('/', function(req, res){
   var tropo = new TropoWebAPI();
-	var initialText = session.session.initialText;
+  console.log('HERRRRRROOOOOO!!!!!');
+	var initialText = req.session.initialText;
 	
 	// Use the say method https://www.tropo.com/docs/webapi/say.htm
 	tropo.say("Welcome to my Tropo Web API node demo, "+initialText);
