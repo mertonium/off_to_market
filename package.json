@@ -1,0 +1,16 @@
+{
+  "name":"off_to_market",
+  "version":"0.0.1",
+  "description":"Telephony service to inform people about Farmers' Markets in their area.",
+  "keywords":["farmers","market","food","local"],
+  "homepage":"http://mertonium.com",
+  "author":"John Mertens <john@mertonium.com> (http://mertonium.com)",
+  "repository":{ "type" : "git", "url" : "http://github.com/mertonium/off_to_market.git" },
+  "dependencies": {
+    "express":"2.3.4",
+    "tropo-webapi":"1.0.15",
+    "geo":"0.0.3"
+  },
+  "engines" : { "node" : ">=0.4.11" },
+  "main":"server.js"
+}
