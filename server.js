@@ -18,10 +18,23 @@ app.configure(function(){
 });
 
 app.post('/', function(req, res){
-	// Create a new instance of the TropoWebAPI object.
-	var tropo = new TropoWebAPI();
+  var tropo = new TropoWebAPI();
 	var initialText = session.session.initialText;
-	tropo.say('I love you Mr. '+initialText);
+	
+	// Use the say method https://www.tropo.com/docs/webapi/say.htm
+	tropo.say("Welcome to my Tropo Web API node demo, "+initialText);
+
+	// Demonstrates how to use the base Tropo action classes.
+	var say = new Say("Please enter your 5 digit zip code.");
+	var choices = new Choices("[5 DIGITS]");
+
+	// Action classes can be passes as parameters to TropoWebAPI class methods.
+	// use the ask method https://www.tropo.com/docs/webapi/ask.htm
+	tropo.ask(choices, 3, false, null, "foo", null, true, say, 5, null);
+	// use the on method https://www.tropo.com/docs/webapi/on.htm
+	tropo.on("continue", null, "/answer", true);
+
+
   res.send(TropoJSON(tropo));
 });
 
