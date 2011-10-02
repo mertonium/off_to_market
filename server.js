@@ -17,7 +17,7 @@ app.configure(function(){
   app.use(app.router);
 });
 
-app.post('/', function(req, res){
+app.all('/', function(req, res){
   var tropo = new TropoWebAPI();
 	var initialText = session.session.initialText;
 	
