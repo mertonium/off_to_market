@@ -9,7 +9,7 @@ var express = require('express'),
     geo = require('geo'),
     cradle = require('cradle'),
     _ = require('underscore');
-    
+
 var db = new(cradle.Connection)('http://usda.iriscouch.com', 5984).database('farmers_markets');
 
 /**
@@ -30,20 +30,27 @@ app.post('/', function(req, res){
 	var givenAddress = req.body.session.initialText;
 	console.log(givenAddress);
 	var response = '', bbox, path;
-	
+
 	geo.geocoder(geo.google, givenAddress, false, function(formattedAddress, lat, lng) {
 	  if(lat && lng) {
 	    response = "You are at "+lng+', '+lat;
 	    bbox = getBbox({coords: { latitude: lat, longitude: lng } });
 //	    console.log('_design/geo/_spatial/full?bbox='+bbox);
       path = ['_design', 'geo', '_spatial', 'full?bbox='+bbox].join('/');
-	    db.query('GET',path, function(err, data) {
+	    db.query('GET',path, function(err, markets) {
 	      console.log(err);
-	      console.log(data);
+	      //console.log(data);
 	      if(!err) {
-	        _.each(data, function(el, idx) {
-	          console.log(el.value.MarketName);
-	        })
+	        _.each(markets, function(el, idx) {
+	          //console.log(el.value.x+', '+el.value.y);
+	          el.distance = quickDist(lat, lng, el.geometry.coordinates[1], el.geometry.coordinates[0]);
+	        });
+	        markets.sort(function(a, b) { return  a.distance - b.distance; });
+
+          _.each(markets, function(m, idx) {
+            response += m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.';
+            console.log(m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.');
+          });
 	      }
 	      wrapitup();
 	    });
@@ -52,14 +59,14 @@ app.post('/', function(req, res){
 	    wrapitup();
 	  }
   });
-	
+
 	// Use the say method https://www.tropo.com/docs/webapi/say.htm
 //	tropo.say("I love you, "+initialText);
 
   // // Demonstrates how to use the base Tropo action classes.
   // var say = new Say("Please enter your 5 digit zip code.");
   // var choices = new Choices("[5 DIGITS]");
-  // 
+  //
   // // Action classes can be passes as parameters to TropoWebAPI class methods.
   // // use the ask method https://www.tropo.com/docs/webapi/ask.htm
   // tropo.ask(choices, 3, false, null, "foo", null, true, say, 5, null);
@@ -70,14 +77,14 @@ app.post('/', function(req, res){
     tropo.say(response);
 	  res.send(TropoJSON(tropo));
   }
-  
+
 });
 
 app.post('/answer', function(req, res){
 	// Create a new instance of the TropoWebAPI object.
 	var tropo = new TropoWebAPI();
 	tropo.say("Your zip code is " + req.body['result']['actions']['interpretation']);
-	
+
 	res.send(TropoJSON(tropo));
 });
 
@@ -97,3 +104,26 @@ function getBbox(pos) {
 
   return bbox.join(',');
 };
+
+// http://www.movable-type.co.uk/scripts/latlong.html
+var quickDist = function(lat1, lon1, lat2, lon2) {
+  var R = 3963.1676; //(mi) 20902231; // radius of the earth in ft
+  var d = Math.acos(Math.sin(lat1.toRad())*Math.sin(lat2.toRad()) +
+                    Math.cos(lat1.toRad())*Math.cos(lat2.toRad()) *
+                    Math.cos(lon2.toRad()-lon1.toRad())) * R;
+  return d;
+};
+
+/** Converts numeric degrees to radians */
+if (typeof(Number.prototype.toRad) === "undefined") {
+  Number.prototype.toRad = function() {
+    return this * Math.PI / 180;
+  }
+}
+
+/** Converts radians to numeric (signed) degrees */
+if (typeof(Number.prototype.toDeg) === "undefined") {
+  Number.prototype.toDeg = function() {
+    return this * 180 / Math.PI;
+  }
+}
