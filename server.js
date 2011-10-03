@@ -50,7 +50,7 @@ app.post('/', function(req, res){
           markets.sort(function(a, b) { return  a.distance - b.distance; });
 
           // Take the closest 5 markets
-          markets = markets.slice(0,5);
+          markets = markets.slice(0,3);
           
           // Build our response
           _.each(markets, function(m, idx) {
