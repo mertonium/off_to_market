@@ -33,7 +33,7 @@ app.post('/', function(req, res){
 
   geo.geocoder(geo.google, givenAddress, false, function(formattedAddress, lat, lng) {
     if(lat && lng) {
-      response = "You are at "+lng+', '+lat;
+      //response = "You are at "+lng+', '+lat;
       bbox = getBbox({coords: { latitude: lat, longitude: lng } });
 //      console.log('_design/geo/_spatial/full?bbox='+bbox);
       path = ['_design', 'geo', '_spatial', 'full?bbox='+bbox].join('/');
@@ -41,12 +41,18 @@ app.post('/', function(req, res){
         console.log(err);
         //console.log(data);
         if(!err) {
+          // Calculate how far away each market is (as the crow flies)
           _.each(markets, function(el, idx) {
-            //console.log(el.value.x+', '+el.value.y);
             el.distance = quickDist(lat, lng, el.geometry.coordinates[1], el.geometry.coordinates[0]);
           });
+          
+          // Sort the markets by distance
           markets.sort(function(a, b) { return  a.distance - b.distance; });
 
+          // Take the closest 5 markets
+          markets = markets.slice(0,5);
+          
+          // Build our response
           _.each(markets, function(m, idx) {
             response += m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.';
             console.log(m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.');
@@ -81,7 +87,7 @@ console.log('Server running on port '+port);
 
 
 function getBbox(pos) {
-  var factor = 0.016;  // About a mile...
+  var factor = 0.8;  // About 50 miles...
   var bbox = [
     pos.coords.longitude - factor,
     pos.coords.latitude - factor,
