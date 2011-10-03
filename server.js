@@ -57,6 +57,7 @@ app.post('/', function(req, res){
             response += '#' + (idx+1) +' ' + m.value.MarketName + ' @ '+m.value.Street+' ('+m.distance.toFixed(2)+' mi). ';
             console.log(m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.');
           });
+          
         }
         wrapitup();
       });
@@ -67,19 +68,25 @@ app.post('/', function(req, res){
   });
 
   var wrapitup = function() {
-    tropo.say(response);
+    response += ' Enter a number for more information.';
+    var say = new Say(response);
+    var choices = new Choices("[1 DIGIT]");
+    
+    // (choices, attempts, bargein, minConfidence, name, recognizer, required, say, timeout, voice);
+    tropo.ask(choices, null, null, null, "digit", null, null, say, 60, null);
+    tropo.on("continue", null, "/continue", true);
+
     res.send(TropoJSON(tropo));
   }
 
 });
 
-app.post('/answer', function(req, res){
-  // Create a new instance of the TropoWebAPI object.
-  var tropo = new TropoWebAPI();
-  tropo.say("Your zip code is " + req.body['result']['actions']['interpretation']);
-
-  res.send(TropoJSON(tropo));
-});
+app.post('/continue', function(req, res){
+    var tropo = new TropoWebAPI();
+    var answer = req.body['result']['actions']['value'];
+    tropo.say("You said " + answer);
+    res.send(TropoJSON(tropo));
+ });
 
 var port = process.env.PORT || 8000;
 app.listen(port);
