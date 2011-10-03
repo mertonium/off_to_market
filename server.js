@@ -39,7 +39,7 @@ app.post('/', function(req, res){
       path = ['_design', 'geo', '_spatial', 'full?bbox='+bbox].join('/');
       db.query('GET',path, function(err, markets) {
         console.log(err);
-        //console.log(data);
+        console.log(markets);
         if(!err) {
           // Calculate how far away each market is (as the crow flies)
           _.each(markets, function(el, idx) {
@@ -54,7 +54,7 @@ app.post('/', function(req, res){
           
           // Build our response
           _.each(markets, function(m, idx) {
-            response += m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.';
+            response += '#' + (idx+1) +' ' + m.value.MarketName + ' @ '+m.value.Street+' ('+m.distance.toFixed(2)+' mi). ';
             console.log(m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.');
           });
         }
