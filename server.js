@@ -29,7 +29,7 @@ app.post('/', function(req, res){
 
   var givenAddress = req.body.session.initialText;
   console.log(givenAddress);
-  var response = '', bbox, path;
+  var response = '', bbox, path, possibleResponse;
 
   geo.geocoder(geo.google, givenAddress, false, function(formattedAddress, lat, lng) {
     if(lat && lng) {
@@ -50,11 +50,14 @@ app.post('/', function(req, res){
           markets.sort(function(a, b) { return  a.distance - b.distance; });
 
           // Take the closest 5 markets
-          markets = markets.slice(0,3);
+          markets = markets.slice(0,5);
           
           // Build our response
-          _.each(markets, function(m, idx) {
-            response += '#' + (idx+1) +' ' + m.value.MarketName + ' @ '+m.value.Street+' ('+m.distance.toFixed(2)+' mi). ';
+          _.each(markets, function(m, idx) {            
+            possibleResponse = '#' + (idx+1) +' ' + m.value.MarketName + ' @ '+m.value.Street+' ('+m.distance.toFixed(2)+' mi). ';
+            if(response.length + possibleResponse.length <= 160) {
+              response += possibleResponse;
+            }
             console.log(m.value.MarketName + ' is '+m.distance.toFixed(2)+' miles away.');
           });
         }
